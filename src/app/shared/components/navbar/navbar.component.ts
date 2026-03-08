@@ -20,6 +20,7 @@ import { AuthService } from '../../../core/auth/auth.service';
       <a mat-button routerLink="/boletas" routerLinkActive="active-link">Boletas</a>
 
       @if (auth.hasRole('Admin', 'Manager')) {
+        <a mat-button routerLink="/boletas/carga-masiva" routerLinkActive="active-link">Carga masiva</a>
         <a mat-button routerLink="/usuarios" routerLinkActive="active-link">Usuarios</a>
       }
       @if (auth.hasRole('Admin')) {

@@ -29,6 +29,13 @@ export const routes: Routes = [
       import('./features/boletas/subir-boleta/subir-boleta.component').then((m) => m.SubirBoletaComponent),
   },
   {
+    path: 'boletas/carga-masiva',
+    canActivate: [authGuard, roleGuard],
+    data: { roles: ['Admin', 'Manager'] },
+    loadComponent: () =>
+      import('./features/boletas/carga-masiva/carga-masiva.component').then((m) => m.CargaMasivaComponent),
+  },
+  {
     path: 'boletas/:id',
     canActivate: [authGuard],
     loadComponent: () =>

@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { BoletaDto } from '../models/boleta.models';
+import { BoletaDto, CargaMasivaDto, CargaMasivaIniciadaResponse } from '../models/boleta.models';
 import { environment } from '../../../environments/environment';
 
 @Injectable({ providedIn: 'root' })
@@ -33,5 +33,16 @@ export class BoletaService {
 
   firmar(id: string) {
     return this.http.put<void>(`${this.base}/${id}/firmar`, null);
+  }
+
+  subirMasiva(periodo: string, archivos: File[]) {
+    const form = new FormData();
+    form.append('periodo', periodo);
+    archivos.forEach((f) => form.append('archivos', f, f.name));
+    return this.http.post<CargaMasivaIniciadaResponse>(`${this.base}/masiva`, form);
+  }
+
+  getCargaMasiva(id: string) {
+    return this.http.get<CargaMasivaDto>(`${this.base}/masiva/${id}`);
   }
 }

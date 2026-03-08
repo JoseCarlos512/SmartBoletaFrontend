@@ -128,6 +128,9 @@ export class BoletaListComponent implements OnInit, OnDestroy {
     this.subs.add(
       this.signalr.boletaFirmada$.subscribe(() => this.loadBoletas())
     );
+    this.subs.add(
+      this.signalr.cargaMasivaCompletada$.subscribe(() => this.loadBoletas())
+    );
   }
 
   loadBoletas() {

@@ -15,12 +15,20 @@ export interface BoletaFirmadaEvent {
   periodo: string;
 }
 
+export interface CargaMasivaCompletadaEvent {
+  cargaMasivaId: string;
+  exitosos: number;
+  fallidos: number;
+  total: number;
+}
+
 @Injectable({ providedIn: 'root' })
 export class SignalrService implements OnDestroy {
   private connection: signalR.HubConnection | null = null;
 
   readonly boletaProcesada$ = new Subject<BoletaProcesadaEvent>();
   readonly boletaFirmada$ = new Subject<BoletaFirmadaEvent>();
+  readonly cargaMasivaCompletada$ = new Subject<CargaMasivaCompletadaEvent>();
 
   constructor(private auth: AuthService) {}
 
@@ -41,6 +49,10 @@ export class SignalrService implements OnDestroy {
 
     this.connection.on('boleta_firmada', (data: BoletaFirmadaEvent) => {
       this.boletaFirmada$.next(data);
+    });
+
+    this.connection.on('carga_masiva_completada', (data: CargaMasivaCompletadaEvent) => {
+      this.cargaMasivaCompletada$.next(data);
     });
 
     await this.connection.start();
