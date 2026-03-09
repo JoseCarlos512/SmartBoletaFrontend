@@ -30,77 +30,8 @@ import { NavbarComponent } from '../../../shared/components/navbar/navbar.compon
     MatSnackBarModule,
     NavbarComponent,
   ],
-  template: `
-    <app-navbar></app-navbar>
-    <div class="container">
-      <mat-card class="form-card">
-        <mat-card-header>
-          <mat-card-title>Subir boleta</mat-card-title>
-        </mat-card-header>
-        <mat-card-content>
-          <form [formGroup]="form" (ngSubmit)="onSubmit()">
-            <mat-form-field appearance="outline" class="full-width">
-              <mat-label>Usuario</mat-label>
-              <mat-select formControlName="usuarioId">
-                @for (u of usuarios(); track u.id) {
-                  <mat-option [value]="u.id">{{ u.nombre }} ({{ u.dni }})</mat-option>
-                }
-              </mat-select>
-              @if (form.get('usuarioId')?.hasError('required') && form.get('usuarioId')?.touched) {
-                <mat-error>Selecciona un usuario</mat-error>
-              }
-            </mat-form-field>
-
-            <mat-form-field appearance="outline" class="full-width">
-              <mat-label>Periodo (YYYY-MM)</mat-label>
-              <input matInput formControlName="periodo" placeholder="2024-01" />
-              @if (form.get('periodo')?.hasError('required') && form.get('periodo')?.touched) {
-                <mat-error>El periodo es requerido</mat-error>
-              }
-              @if (form.get('periodo')?.hasError('pattern') && form.get('periodo')?.touched) {
-                <mat-error>Formato: YYYY-MM</mat-error>
-              }
-            </mat-form-field>
-
-            <div class="file-area">
-              <button mat-stroked-button type="button" (click)="fileInput.click()">
-                <mat-icon>attach_file</mat-icon>
-                {{ selectedFile() ? selectedFile()!.name : 'Seleccionar PDF' }}
-              </button>
-              <input #fileInput type="file" accept=".pdf" hidden (change)="onFileChange($event)" />
-              @if (!selectedFile() && fileTouched) {
-                <mat-error>Selecciona un archivo PDF</mat-error>
-              }
-            </div>
-
-            @if (errorMessage) {
-              <p class="error-msg">{{ errorMessage }}</p>
-            }
-
-            <div class="actions">
-              <a mat-button routerLink="/boletas">Cancelar</a>
-              <button mat-raised-button color="primary" type="submit" [disabled]="loading()">
-                @if (loading()) {
-                  <mat-spinner diameter="20"></mat-spinner>
-                } @else {
-                  Subir
-                }
-              </button>
-            </div>
-          </form>
-        </mat-card-content>
-      </mat-card>
-    </div>
-  `,
-  styles: [`
-    .container { padding: 24px; max-width: 600px; margin: 0 auto; }
-    .form-card { padding: 8px; }
-    .full-width { width: 100%; margin-bottom: 8px; }
-    .file-area { margin-bottom: 16px; }
-    .actions { display: flex; gap: 8px; justify-content: flex-end; margin-top: 16px; }
-    .error-msg { color: #f44336; font-size: 0.875rem; }
-    mat-error { font-size: 0.75rem; margin-top: 4px; display: block; }
-  `],
+  templateUrl: './subir-boleta.component.html',
+  styleUrl: './subir-boleta.component.scss',
 })
 export class SubirBoletaComponent {
   private fb = inject(FormBuilder);

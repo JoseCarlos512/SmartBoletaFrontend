@@ -1,0 +1,66 @@
+<app-navbar></app-navbar>
+<div class="dashboard-container">
+  <h1>Bienvenido, {{ auth.currentUser()?.nombre }}</h1>
+  <p class="subtitle">Rol: <strong>{{ auth.rol() }}</strong></p>
+
+  <div class="stats-grid">
+    <mat-card>
+      <mat-card-content>
+        <div class="stat">
+          <mat-icon class="stat-icon pendiente">hourglass_empty</mat-icon>
+          <div>
+            <div class="stat-value">{{ count('Pendiente') }}</div>
+            <div class="stat-label">Pendientes</div>
+          </div>
+        </div>
+      </mat-card-content>
+    </mat-card>
+
+    <mat-card>
+      <mat-card-content>
+        <div class="stat">
+          <mat-icon class="stat-icon procesando">sync</mat-icon>
+          <div>
+            <div class="stat-value">{{ count('ProcesandoOcr') }}</div>
+            <div class="stat-label">Procesando OCR</div>
+          </div>
+        </div>
+      </mat-card-content>
+    </mat-card>
+
+    <mat-card>
+      <mat-card-content>
+        <div class="stat">
+          <mat-icon class="stat-icon disponible">check_circle</mat-icon>
+          <div>
+            <div class="stat-value">{{ count('Disponible') }}</div>
+            <div class="stat-label">Disponibles</div>
+          </div>
+        </div>
+      </mat-card-content>
+    </mat-card>
+
+    <mat-card>
+      <mat-card-content>
+        <div class="stat">
+          <mat-icon class="stat-icon firmada">verified</mat-icon>
+          <div>
+            <div class="stat-value">{{ count('Firmada') }}</div>
+            <div class="stat-label">Firmadas</div>
+          </div>
+        </div>
+      </mat-card-content>
+    </mat-card>
+  </div>
+
+  <div class="actions">
+    <a mat-raised-button color="primary" routerLink="/boletas">
+      <mat-icon>description</mat-icon> Ver mis boletas
+    </a>
+    @if (auth.hasRole('Admin', 'Manager')) {
+      <a mat-raised-button color="accent" routerLink="/boletas/subir">
+        <mat-icon>upload_file</mat-icon> Subir boleta
+      </a>
+    }
+  </div>
+</div>

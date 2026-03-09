@@ -1,0 +1,86 @@
+<app-navbar></app-navbar>
+<div class="container">
+  <div class="header">
+    <h1>Usuarios</h1>
+    @if (auth.hasRole('Admin')) {
+      <button mat-raised-button color="primary" (click)="openDialog()">
+        <mat-icon>person_add</mat-icon> Nuevo usuario
+      </button>
+    }
+  </div>
+
+  @if (loading()) {
+    <div class="center"><mat-spinner></mat-spinner></div>
+  } @else {
+    <mat-card>
+      <table mat-table [dataSource]="usuarios()" class="full-width">
+        <ng-container matColumnDef="nombre">
+          <th mat-header-cell *matHeaderCellDef>Nombre</th>
+          <td mat-cell *matCellDef="let u">{{ u.nombre }}</td>
+        </ng-container>
+        <ng-container matColumnDef="correo">
+          <th mat-header-cell *matHeaderCellDef>Correo</th>
+          <td mat-cell *matCellDef="let u">{{ u.correo ?? '-' }}</td>
+        </ng-container>
+        <ng-container matColumnDef="dni">
+          <th mat-header-cell *matHeaderCellDef>DNI</th>
+          <td mat-cell *matCellDef="let u">{{ u.dni }}</td>
+        </ng-container>
+        <ng-container matColumnDef="estado">
+          <th mat-header-cell *matHeaderCellDef>Estado</th>
+          <td mat-cell *matCellDef="let u">
+            <mat-chip [color]="u.estado ? 'primary' : 'warn'" highlighted>
+              {{ u.estado ? 'Activo' : 'Inactivo' }}
+            </mat-chip>
+          </td>
+        </ng-container>
+        <tr mat-header-row *matHeaderRowDef="cols"></tr>
+        <tr mat-row *matRowDef="let row; columns: cols"></tr>
+        <tr class="mat-row" *matNoDataRow>
+          <td class="mat-cell" [attr.colspan]="cols.length" style="text-align:center;padding:24px">No hay usuarios</td>
+        </tr>
+      </table>
+    </mat-card>
+  }
+
+  @if (showDialog()) {
+    <div class="dialog-backdrop" (click)="closeDialog()"></div>
+    <mat-card class="dialog-card">
+      <mat-card-header>
+        <mat-card-title>Nuevo usuario</mat-card-title>
+      </mat-card-header>
+      <mat-card-content>
+        <form [formGroup]="form" (ngSubmit)="crearUsuario()">
+          <mat-form-field appearance="outline" class="full-width">
+            <mat-label>Nombre</mat-label>
+            <input matInput formControlName="nombre" />
+          </mat-form-field>
+          <mat-form-field appearance="outline" class="full-width">
+            <mat-label>Correo</mat-label>
+            <input matInput type="email" formControlName="correo" />
+          </mat-form-field>
+          <mat-form-field appearance="outline" class="full-width">
+            <mat-label>DNI</mat-label>
+            <input matInput formControlName="dni" />
+          </mat-form-field>
+          <mat-form-field appearance="outline" class="full-width">
+            <mat-label>Contraseña</mat-label>
+            <input matInput type="password" formControlName="password" />
+          </mat-form-field>
+          <mat-form-field appearance="outline" class="full-width">
+            <mat-label>Rol</mat-label>
+            <mat-select formControlName="rol">
+              <mat-option value="User">User</mat-option>
+              <mat-option value="Manager">Manager</mat-option>
+              <mat-option value="Admin">Admin</mat-option>
+            </mat-select>
+          </mat-form-field>
+          <div class="dialog-actions">
+            <button mat-button type="button" (click)="closeDialog()">Cancelar</button>
+            <button mat-raised-button color="primary" type="submit" [disabled]="creando()">Crear</button>
+          </div>
+        </form>
+      </mat-card-content>
+    </mat-card>
+  }
+</div>

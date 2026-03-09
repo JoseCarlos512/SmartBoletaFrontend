@@ -1,0 +1,13 @@
+.dashboard-container { padding: 24px; max-width: 1000px; margin: 0 auto; }
+h1 { margin-bottom: 4px; }
+.subtitle { color: #666; margin-bottom: 24px; }
+.stats-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 16px; margin-bottom: 24px; }
+.stat { display: flex; align-items: center; gap: 16px; }
+.stat-icon { font-size: 2.5rem; width: 2.5rem; height: 2.5rem; }
+.stat-value { font-size: 2rem; font-weight: 700; line-height: 1; }
+.stat-label { font-size: 0.875rem; color: #666; }
+.pendiente { color: #ff9800; }
+.procesando { color: #2196f3; }
+.disponible { color: #4caf50; }
+.firmada { color: #9c27b0; }
+.actions { display: flex; gap: 12px; flex-wrap: wrap; }

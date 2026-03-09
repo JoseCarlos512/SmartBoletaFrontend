@@ -1,0 +1,73 @@
+<app-navbar></app-navbar>
+<div class="container">
+  @if (loading()) {
+    <div class="center"><mat-spinner></mat-spinner></div>
+  } @else if (boleta()) {
+    <div class="header">
+      <h1>Boleta — {{ boleta()!.periodo }}</h1>
+      <mat-chip [ngClass]="'chip-' + boleta()!.estado.toLowerCase()">
+        {{ boleta()!.estado | boletaEstado }}
+      </mat-chip>
+    </div>
+
+    <!-- Flujo visual de estados -->
+    <mat-card class="stepper-card">
+      <mat-card-content>
+        <mat-stepper [selectedIndex]="stepIndex()">
+          <mat-step label="Pendiente" state="pendiente"></mat-step>
+          <mat-step label="Procesando OCR" state="procesando"></mat-step>
+          <mat-step label="Disponible" state="disponible"></mat-step>
+          <mat-step label="Firmada" state="firmada"></mat-step>
+        </mat-stepper>
+      </mat-card-content>
+    </mat-card>
+
+    <mat-card>
+      <mat-card-content>
+        <div class="info-grid">
+          <div class="info-item">
+            <span class="label">Archivo</span>
+            <span>{{ boleta()!.archivoNombre }}</span>
+          </div>
+          <div class="info-item">
+            <span class="label">Subida</span>
+            <span>{{ boleta()!.fechaSubida | date:'dd/MM/yyyy HH:mm' }}</span>
+          </div>
+          @if (boleta()!.fechaFirma) {
+            <div class="info-item">
+              <span class="label">Firmada</span>
+              <span>{{ boleta()!.fechaFirma | date:'dd/MM/yyyy HH:mm' }}</span>
+            </div>
+          }
+        </div>
+
+        @if (boleta()!.textoOcr) {
+          <mat-divider class="divider"></mat-divider>
+          <h3>Texto OCR</h3>
+          <pre class="ocr-text">{{ boleta()!.textoOcr }}</pre>
+        }
+      </mat-card-content>
+
+      <mat-card-actions>
+        <a mat-button routerLink="/boletas">
+          <mat-icon>arrow_back</mat-icon> Volver
+        </a>
+        @if (puedeFirmar()) {
+          <button mat-raised-button color="accent" (click)="firmar()" [disabled]="firmando()">
+            @if (firmando()) {
+              <mat-spinner diameter="20"></mat-spinner>
+            } @else {
+              <ng-container><mat-icon>draw</mat-icon> Firmar boleta</ng-container>
+            }
+          </button>
+        }
+        <a mat-button [href]="boleta()!.archivoUrl" target="_blank">
+          <mat-icon>open_in_new</mat-icon> Ver PDF
+        </a>
+      </mat-card-actions>
+    </mat-card>
+  } @else {
+    <p>Boleta no encontrada.</p>
+    <a mat-button routerLink="/boletas">Volver</a>
+  }
+</div>

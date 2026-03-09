@@ -1,0 +1,168 @@
+<app-navbar></app-navbar>
+<div class="container">
+
+  @if (fase() === 'form') {
+    <mat-card class="main-card">
+      <mat-card-header>
+        <mat-card-title>Carga masiva de boletas</mat-card-title>
+        <mat-card-subtitle>
+          Sube múltiples PDFs. El sistema identificará al usuario por DNI o nombre.
+        </mat-card-subtitle>
+      </mat-card-header>
+      <mat-card-content>
+        <form [formGroup]="form" (ngSubmit)="onSubmit()">
+          <mat-form-field appearance="outline" class="full-width">
+            <mat-label>Periodo (YYYY-MM)</mat-label>
+            <input matInput formControlName="periodo" placeholder="2024-01" />
+            @if (form.get('periodo')?.hasError('required') && form.get('periodo')?.touched) {
+              <mat-error>El periodo es requerido</mat-error>
+            }
+            @if (form.get('periodo')?.hasError('pattern') && form.get('periodo')?.touched) {
+              <mat-error>Formato: YYYY-MM</mat-error>
+            }
+          </mat-form-field>
+
+          <div class="file-area">
+            <button mat-stroked-button type="button" (click)="fileInput.click()">
+              <mat-icon>folder_open</mat-icon>
+              @if (archivos().length > 0) {
+                {{ archivos().length }} archivo(s) seleccionado(s)
+              } @else {
+                Seleccionar PDFs
+              }
+            </button>
+            <input #fileInput type="file" accept=".pdf" multiple hidden (change)="onFilesChange($event)" />
+            @if (filesTouched && archivos().length === 0) {
+              <span class="file-error">Selecciona al menos un PDF</span>
+            }
+            @if (archivos().length > 0) {
+              <ul class="file-list">
+                @for (f of archivos(); track f.name) {
+                  <li>
+                    <mat-icon class="pdf-icon">picture_as_pdf</mat-icon>
+                    <span>{{ f.name }}</span>
+                  </li>
+                }
+              </ul>
+            }
+          </div>
+
+          @if (errorMessage()) {
+            <p class="error-msg">{{ errorMessage() }}</p>
+          }
+
+          <div class="actions">
+            <a mat-button routerLink="/boletas">Cancelar</a>
+            <button mat-raised-button color="primary" type="submit" [disabled]="uploading()">
+              @if (uploading()) {
+                <mat-spinner diameter="20"></mat-spinner>
+              } @else {
+                <mat-icon>cloud_upload</mat-icon> Iniciar carga
+              }
+            </button>
+          </div>
+        </form>
+      </mat-card-content>
+    </mat-card>
+  }
+
+  @if (fase() === 'procesando') {
+    <mat-card class="main-card">
+      <mat-card-header>
+        <mat-card-title>Procesando boletas...</mat-card-title>
+        @if (progreso(); as p) {
+          <mat-card-subtitle>Periodo: {{ p.periodo }}</mat-card-subtitle>
+        }
+      </mat-card-header>
+      <mat-card-content>
+        @if (progreso(); as p) {
+          <p class="progress-text">{{ p.procesados }} de {{ p.total }} archivos procesados</p>
+          <mat-progress-bar
+            mode="determinate"
+            [value]="p.total > 0 ? (p.procesados / p.total) * 100 : 0"
+          ></mat-progress-bar>
+          <div class="progress-stats">
+            <span class="stat-ok"><mat-icon>check_circle</mat-icon> {{ p.exitosos }} asignados</span>
+            <span class="stat-err"><mat-icon>error</mat-icon> {{ p.fallidos }} fallidos</span>
+          </div>
+        } @else {
+          <mat-progress-bar mode="indeterminate"></mat-progress-bar>
+          <p class="progress-text">Iniciando proceso...</p>
+        }
+        <p class="hint">Los usuarios recibirán notificaciones al asignarse sus boletas.</p>
+      </mat-card-content>
+    </mat-card>
+  }
+
+  @if (fase() === 'resultado') {
+    @if (progreso(); as p) {
+      <div class="header">
+        <h1>Carga masiva completada</h1>
+        <button mat-raised-button color="primary" (click)="nuevaCarga()">
+          <mat-icon>refresh</mat-icon> Nueva carga
+        </button>
+      </div>
+
+      <div class="summary-chips">
+        <mat-chip class="chip-ok">
+          <mat-icon matChipAvatar>check_circle</mat-icon>
+          {{ p.exitosos }} boletas asignadas
+        </mat-chip>
+        <mat-chip class="chip-err">
+          <mat-icon matChipAvatar>error</mat-icon>
+          {{ p.fallidos }} fallidos
+        </mat-chip>
+        <mat-chip>
+          <mat-icon matChipAvatar>description</mat-icon>
+          {{ p.total }} total
+        </mat-chip>
+      </div>
+
+      <mat-card>
+        <table mat-table [dataSource]="p.archivos" class="full-width">
+          <ng-container matColumnDef="nombreArchivo">
+            <th mat-header-cell *matHeaderCellDef>Archivo</th>
+            <td mat-cell *matCellDef="let a">{{ a.nombreArchivo }}</td>
+          </ng-container>
+
+          <ng-container matColumnDef="estado">
+            <th mat-header-cell *matHeaderCellDef>Estado</th>
+            <td mat-cell *matCellDef="let a">
+              <mat-chip [ngClass]="'chip-archivo-' + a.estado.toLowerCase()">
+                {{ a.estado }}
+              </mat-chip>
+            </td>
+          </ng-container>
+
+          <ng-container matColumnDef="usuarioNombre">
+            <th mat-header-cell *matHeaderCellDef>Usuario</th>
+            <td mat-cell *matCellDef="let a">{{ a.usuarioNombre ?? '—' }}</td>
+          </ng-container>
+
+          <ng-container matColumnDef="razonFallo">
+            <th mat-header-cell *matHeaderCellDef>Razón de fallo</th>
+            <td mat-cell *matCellDef="let a">{{ a.razonFallo ?? '—' }}</td>
+          </ng-container>
+
+          <ng-container matColumnDef="boleta">
+            <th mat-header-cell *matHeaderCellDef>Boleta</th>
+            <td mat-cell *matCellDef="let a">
+              @if (a.boletaId) {
+                <a mat-icon-button [routerLink]="['/boletas', a.boletaId]" matTooltip="Ver boleta">
+                  <mat-icon>visibility</mat-icon>
+                </a>
+              } @else {
+                <span>—</span>
+              }
+            </td>
+          </ng-container>
+
+          <tr mat-header-row *matHeaderRowDef="resultCols"></tr>
+          <tr mat-row *matRowDef="let row; columns: resultCols"
+              [ngClass]="{ 'row-fallido': row.estado === 'Fallido' }"></tr>
+        </table>
+      </mat-card>
+    }
+  }
+
+</div>
